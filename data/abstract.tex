@@ -1,39 +1,41 @@
-% !TeX root = ../thuthesis-example.tex
+% !TeX root = ../main.tex
 
 % 中英文摘要和关键字
 
 \begin{abstract}
-  论文的摘要是对论文研究内容和成果的高度概括。
-  摘要应对论文所研究的问题及其研究目的进行描述，对研究方法和过程进行简单介绍，对研究成果和所得结论进行概括。
-  摘要应具有独立性和自明性，其内容应包含与论文全文同等量的主要信息。
-  使读者即使不阅读全文，通过摘要就能了解论文的总体内容和主要成果。
+    % background
+    “预训练-微调”范式通过解耦通用表征学习与下游任务迁移优化，有效缓解了视觉任务数据标注困难的问题，已成为计算机视觉领域的重要方法。视觉任务的核心在于实现从像素级感知特征到语义级认知概念的有效映射。然而，现有视觉预训练方法面临语义理解的双重困境：基于图像分类的有监督方法受限于封闭的语义空间和有限的数据标注，而基于图像自身的自监督方法则缺乏对语义概念的建模过程。语言-图像对比学习（CLIP）方法借助语言模态在语义表达上的优势，通过大规模互联网图文数据对齐视觉与语言表征，有效构建了开放的视觉感知和语义概念的映射关系。
+    然而，CLIP方法仍面临三个关键挑战：预训练数据中的语义噪声影响表征对齐效果、实例级训练框架导致细粒度视觉任务迁移表现欠佳、判别式学习特性使模型缺乏语义生成能力。针对这些挑战，本文提出了一系列解决方案，显著提升了CLIP模型在视觉表征学习和下游任务迁移上的效果：
+    % 尽管如此，CLIP方法仍存在局限性：预训练阶段易受数据噪声影响，在细粒度视觉任务上迁移效果欠佳，也无法完成语义生成的视觉任务。
+    % 针对这些问题，本文提出了一系列改进方案，增强了CLIP方法视觉与语言表征的对齐效果、并提升了其视觉感知的准确性和语义表达的自然性。% 包括扩展预训练方法、设计细粒度和语义生成视觉任务微调策略
+    % 在提升预训练优势方面，本文提出扩展使用已有标注的数据源，将其深度融合进CLIP视觉-语言对比学习的框架；% 通过增加可训练数据，提高数据整体信噪比的方式提升CLIP方法预训练效果；
+    % 在改进下游视觉任务性能方面，本文受像素级自监督任务的思想启发，通过特征图自蒸馏方法低成本引入细粒度训练目标；
+    % 在实现多模态下游任务迁移方面，本文借用CLIP模型自身视觉与语言表征的对齐特性，探索了离散扩散模型完成图像注释生成任务的可行性。
+    % 本文具体研究成果如下：
+    
+    \textit{提出基于高质量图像分类数据扩展的预训练方法。} 获取高质量的语义监督信号是影响CLIP方法视觉表征学习质量的核心挑战。针对这一问题，本文提出利用外部专家知识库增强类别标签语义信息，并从对比学习的视角重新设计图像分类任务，从而引入人工标注的图像分类数据对CLIP方法进行增强。该方法显著增强了CLIP方法视觉-语言表征的对齐效果，在零样本图文跨模态检索和开放集合图像识别等任务上取得3\%至5\%的准确率提升。
 
-  论文摘要的书写应力求精确、简明。
-  切忌写成对论文书写内容进行提要的形式，尤其要避免“第 1 章……；第 2 章……；……”这种或类似的陈述方式。
-
-  关键词是为了文献标引工作、用以表示全文主要内容信息的单词或术语。
-  关键词不超过 5 个，每个关键词中间用分号分隔。
+    \textit{提出基于特征图自蒸馏增强的细粒度视觉任务迁移方法。} CLIP方法的视觉表征蕴含丰富的语义信息，但其在依赖密集预测能力的细粒度视觉任务上的迁移效果不及像素级自监督预训练方法。通过对比分析两种方法在输入、目标和损失方面设计，本文揭示了像素级训练目标的重要性，并提出基于特征图自蒸馏的方法构建训练信号。该方法无需额外数据标注，有效改善了CLIP模型在语义分割、深度估计等视觉任务上的迁移性能，在主要评估指标上取得2\%至3\%的精度提升。
+    
+    \textit{提出基于离散扩散模型的语义生成任务迁移方法。} 虽然CLIP方法实现了视觉-语言表征的有效对齐，但缺乏直接完成语义生成任务的能力。本文针对文本信号的离散性、低冗余性和长度可变特性，设计了基于离散扩散模型的语义生成框架。该方法在图像描述生成任务上达到了与成熟自回归方法相当的性能，为CLIP模型在语义生成任务上的迁移方式开辟了新途径。
 
   % 关键词用“英文逗号”分隔，输出时会自动处理为正确的分隔符
   \thusetup{
-    keywords = {关键词 1, 关键词 2, 关键词 3, 关键词 4, 关键词 5},
+    keywords = {语言-图像对比学习, 视觉表征学习, 迁移方法, 自蒸馏, 离散扩散模型},
   }
 \end{abstract}
 
 \begin{abstract*}
-  An abstract of a dissertation is a summary and extraction of research work and contributions.
-  Included in an abstract should be description of research topic and research objective, brief introduction to methodology and research process, and summary of conclusion and contributions of the research.
-  An abstract should be characterized by independence and clarity and carry identical information with the dissertation.
-  It should be such that the general idea and major contributions of the dissertation are conveyed without reading the dissertation.
+The "pre-training and fine-tuning" paradigm has become a crucial approach in the field of computer vision by decoupling general representation learning from downstream task transfer, effectively addressing the challenge of limited annotated data. The core of vision tasks lies in establishing effective mappings from pixel-level perceptual features to semantic-level cognitive concepts. However, existing visual pre-training methods face a dilemma in semantic understanding: supervised methods based on image classification tasks are constrained by closed semantic spaces and limited annotations, while self-supervised methods based on image properties lack explicit semantic concept modeling. The Contrastive Language-Image Pre-training (CLIP) method leverages the semantic expressiveness of language modality to align visual and language representations through large-scale web image-text pairs, effectively establishing an open mapping between visual perception and semantic concepts.
+Nevertheless, CLIP still faces three key challenges: semantic noise in pre-training data affecting representation alignment, instance-level training framework leading to suboptimal performance in fine-grained vision tasks, and discriminative learning characteristics limiting semantic generation capabilities. To address these challenges, this thesis proposes a series of solutions that significantly improve CLIP's performance in visual representation learning and downstream task transfer:
 
-  An abstract should be concise and to the point.
-  It is a misunderstanding to make an abstract an outline of the dissertation and words “the first chapter”, “the second chapter” and the like should be avoided in the abstract.
+\textit{A pre-training method enhanced with high-quality image classification data.} Acquiring high-quality semantic supervision signals is crucial for CLIP's visual representation learning. This work proposes to enrich category label semantics using external knowledge bases and redesigns image classification tasks from a contrastive learning perspective, incorporating manually annotated image classification data to enhance CLIP. This method significantly enhances the alignment effect of visual-language representations in CLIP methods, achieving 3\% to 5\% accuracy improvements on tasks such as zero-shot cross-modal image-text retrieval and open-set image recognition.
 
-  Keywords are terms used in a dissertation for indexing, reflecting core information of the dissertation.
-  An abstract may contain a maximum of 5 keywords, with semi-colons used in between to separate one another.
+\textit{A fine-grained vision task transfer method based on feature map self-distillation.} Although CLIP's visual representations contain rich semantic information, their transfer performance on fine-grained vision tasks requiring dense prediction capabilities falls short of pixel-level self-supervised pre-training methods. Through comparative analysis of the two methods in terms of input, target, and loss design, this work reveals the importance of pixel-level training objectives and proposes a feature map self-distillation method to construct fine-grained visual supervision signals. This method requires no additional data annotation and effectively improves CLIP model's transfer performance on visual tasks such as semantic segmentation and depth estimation, achieving 2\% to 3\% accuracy improvements on key evaluation metrics.
 
+\textit{A semantic generation task transfer method using discrete diffusion models.} While CLIP achieves effective visual-language representation alignment, it lacks direct semantic generation capabilities. This work designs a semantic generation framework based on discrete diffusion models, considering the discrete nature, low redundancy, and variable length characteristics of text signals. This method achieves comparable performance to mature autoregressive approaches in image captioning tasks, opening new paths for CLIP's transfer to semantic generation tasks.
   % Use comma as separator when inputting
   \thusetup{
-    keywords* = {keyword 1, keyword 2, keyword 3, keyword 4, keyword 5},
+    keywords* = {Contrastive Language-Image Pre-training, Visual Representation Learning, Transfer Methods, Self-Distillation, Discrete Diffusion Models},
   }
 \end{abstract*}
