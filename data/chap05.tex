@@ -40,7 +40,7 @@ CLIP方法通过对大规模视觉与语义信息进行建模和对齐，具备�
 
 \begin{figure}
   \centering
-  \includegraphics[width=1.0\linewidth]{figures/ddcap-dalle2-v2.pdf}
+  \includegraphics[width=1.0\linewidth]{figures/ddcap-dalle2-v3.pdf}
   % \caption{Dall-E 2方法将CLIP模型的文字表征转化为视觉表征后生成图像}
   \caption{Dall-E 2\cite{dall-e2}方法流程图}
   % 需要辅佐一张图像特征到文本生成的推广
@@ -109,7 +109,7 @@ Dall-E 2方法将CLIP方法成功用于从语言表征到视觉表征的转化�
 % 与当前主流的自回归方法相比，这种方法具有更大的解码灵活性。例如，这种方法允许同时预测多个标记，而不是逐个预测，前文标记也可以依赖后文标记进行生成并修改，而不是仅只允许按阅读顺序进行生成。
 % 第\ref{sec:ddcap-method}节首先介绍了将离散扩散模型应用于图像描述生成任务的基本思想。第\ref{sec:ddcap-key-design}节接着详细介绍了多种针对文本信号的离散性、冗余特性、序列长度可变性设计的训练和推理方法，对提高性能起到了关键作用。
 
-\subsection{基于离散扩散模型实现语义生成任务的基本思想}
+\subsection{离散扩散模型的基本思想}
 \label{sec:ddcap-method}
 连续扩散模型在每个图像像素上单独施加连续高斯噪声，因此可以精确且连续控制各元素的噪声强度。与连续扩散模型不同，离散扩散模型则在实例级别控制整体噪声强度，通过对单个元素进行掩码或替换操作实施加噪过程。对标记化后的文本序列而言，离散扩散模型通过将文本标记替换为掩码标记[\texttt{MASK}]或其他随机文本标记来实现加噪。当文本标记被替换为随机标记时，该输入元素的信噪比显著降低，而当该文本标记被进一步被替换为掩码标记时，输入元素的原始信息几乎完全丢失，仅作占位符用途。因此，受文本信号离散性特点影响，离散扩散模型无法连续调节单个输入元素的噪声强度，而是通过控制掩码标记比例来调节整个输入序列的噪声水平。
 
@@ -533,8 +533,29 @@ DDCap方法的训练过程如图\ref{fig:ddcap-train-inference}的左侧部分�
 % 不过实验设置对得不是很齐（pre-train 15ep，哦，我们也是pt15m，只是没有ft）而且只测了C，没测其他，可能还有些别的设置不太一样
 % baseline是124.42，fd之后是126.43，384是127.388
 
+\paragraph{特征图自蒸馏方法增强语义生成任务迁移性能的比较} 在第\ref{cha:fd}中介绍了通过特征图自蒸馏方法引入细粒度视觉目标，从而取得更佳视觉任务迁移效果的实验。之前的结果主要侧重于细粒度视觉任务，比如语义分割、深度估计等，而本实验在语义生成任务上对特征图自蒸馏方法进行了测试。实验结果如表\ref{tab:ddcap-fd-clip}所示，经过特征图自蒸馏的CLIP模型在语义生成任务上也取得更佳表现，展现出了特征图自蒸馏方法对CLIP模型的全面提升。
+这一结果表明，依赖密集感知能力的细粒度视觉任务和语义生成任务共享了部分对视觉模型能力的要求。
+
+\begin{table}
+  \centering
+  \caption{特征图自蒸馏增强语义生成任务迁移性能的比较}
+  \begin{tabular}{lc}
+    \toprule
+    视觉预训练方法  & C\\
+    \midrule
+    CLIP & 125.1 \\
+    FD-CLIP & \textbf{126.4} \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:ddcap-fd-clip}
+\end{table}
 \subsection{图像描述修改任务与模型定性分析}
 
+
+
+\paragraph{DDCap方法在图像描述修改任务中的表现}
+由于DDCap方法是一种并行生成方法，文本标记不是从左到右按固定顺序进行生成。因此此类方法有利于处理需要对图像描述进行填充或修改的任务。
+如图\ref{fig:ddcap-modification-task}所示，本节考虑了一种人机交互的应用场景，在该场景中模型需要针对人类反馈对图像描述进行修改。具体而言，该任务模拟了用户要求模型修改已生成图像描述中的形容词并返回一条新的图像描述的场景。% 本组实验通过筛选出图像注释中含有形容词的所有测试样本，并将其中的形容词去除，要求模型重新生成。
 \begin{figure}
   \centering
   \includegraphics[width=0.8\linewidth]{figures/ddcap-modification-task.pdf}
@@ -543,10 +564,8 @@ DDCap方法的训练过程如图\ref{fig:ddcap-train-inference}的左侧部分�
   \label{fig:ddcap-modification-task}
 \end{figure}
 
-\paragraph{DDCap方法在图像描述修改任务中的表现}
-由于DDCap方法是一种并行生成方法，文本标记不是从左到右按固定顺序进行生成。因此此类方法有利于处理需要对图像描述进行填充或修改的任务。
-如图\ref{fig:ddcap-modification-task}所示，本节考虑了一种人机交互的应用场景，在该场景中模型需要针对人类反馈对图像描述进行修改。具体而言，该任务模拟了用户要求模型修改已生成图像描述中的形容词并返回一条新的图像描述的场景。% 本组实验通过筛选出图像注释中含有形容词的所有测试样本，并将其中的形容词去除，要求模型重新生成。
-
+表\ref{tab:ddcap-infill}展示了DDCap方法与自回归方法在图像描述修改任务上的性能比较。由于DDCap方法是一种并行生成方法，它在生成当前文本标记时能够同时考虑前文和后文。不同于自回归方法，DDCap方法可以完全保留后文而不需要重新生成。因此，DDCap方法在比较图像描述修改前后的单词匹配度、公共子序列长度等测试指标上更有优势。
+为了进一步评估修改后图像描述与图像的匹配程度，本组实验引入了CLIPScore\cite{CLIPScore}指标。该指标利用CLIP模型对齐视觉表征和语言表征的能力，可以有效评估修改后图像描述与图像间的语义关系，建模单个形容词改动带来的细微语义变化。从结果来看，DDCap方法相比于自回归方法在此类图像描述修改任务上效果更佳。
 \begin{table}
   \centering
   \caption{DDCap方法和自回归方法在图像描述修改任务上的对比实验}
@@ -561,10 +580,6 @@ DDCap方法的训练过程如图\ref{fig:ddcap-train-inference}的左侧部分�
   \label{tab:ddcap-infill}
 \end{table}
 
-表\ref{tab:ddcap-infill}展示了DDCap方法与自回归方法在图像描述修改任务上的性能比较。由于DDCap方法是一种并行生成方法，它在生成当前文本标记时能够同时考虑前文和后文。不同于自回归方法，DDCap方法可以完全保留后文而不需要重新生成。因此，DDCap方法在比较图像描述修改前后的单词匹配度、公共子序列长度等测试指标上更有优势。
-为了进一步评估修改后图像描述与图像的匹配程度，本组实验引入了CLIPScore\cite{CLIPScore}指标。该指标利用CLIP模型对齐视觉表征和语言表征的能力，可以有效评估修改后图像描述与图像间的语义关系，建模单个形容词改动带来的细微语义变化。从结果来看，DDCap方法相比于自回归方法在此类图像描述修改任务上效果更佳。
-
-
 \begin{figure}
   \centering
   \includegraphics[width=1.0\linewidth]{figures/ddcap-generate-order.pdf}
@@ -573,6 +588,12 @@ DDCap方法的训练过程如图\ref{fig:ddcap-train-inference}的左侧部分�
   \label{fig:ddcap-generate-order}
 \end{figure}
 
+
+
+\paragraph{模型定性分析} 图\ref{fig:ddcap-generate-order}以MSCOCO测试集中的部分图像为例，展示了DDCap方法生成图像描述的顺序。通过观察模型的行为，可以得出如下结论：DDCap方法通常首先生成图像中的主体对象和对应的冠词，接着生成表示主体对象间相对关系的介词以及描述这些对象的形容词，最后生成其他名词、动词等使得句子语法正确。这一过程与人类自然思维顺序有一定相似性，展现了从点到线再到面的生成逻辑。
+
+此外，图\ref{fig:ddcap-qualification}展示了DDCap方法和自回归方法在MSCOCO测试集部分样例上的图像描述生成结果，其中“AR”表示自回归方法生成的图像描述，而“GT”表示数据集中的参考描述。图中灰色块展示了部分生成结果的错误之处。相比于自回归方法，DDCap方法在识别图像中的主体对象方面表现更优。但由于DDCap方法依赖长度预测任务，且如图\ref{fig:ddcap-length}所示，长度预测误差存在较明显的分布倾向，也即预测序列长度比实际序列长度略长的概率更大。因此，当图像描述序列的长度预测结果更长，与实际长度有较大偏差时，DDCap方法生成的图像描述存在利用重复内容填充给定序列长度的现象。
+% 但是，我们的 DDCap 有时会生成一些重复的单词。这个问题可以通过两种方式处理：（i） 我们首先获取标题，然后找到这些重复的单词。这些重复的单词将被重新屏蔽和重新生成。（ii） 标题中重复的单词将被删除。然后我们得到这个标题的新长度，没有重复的单词。根据新的长度，我们重新生成整个标题。
 \begin{figure}
   \centering
   \includegraphics[width=1.0\linewidth]{figures/ddcap-qualification.pdf}
@@ -580,12 +601,6 @@ DDCap方法的训练过程如图\ref{fig:ddcap-train-inference}的左侧部分�
   % image encoder; decoder (cross-attn) + time step
   \label{fig:ddcap-qualification}
 \end{figure}
-
-
-\paragraph{模型定性分析} 图\ref{fig:ddcap-generate-order}以MSCOCO测试集中的部分图像为例，展示了DDCap方法生成图像描述的顺序。通过观察模型的行为，可以得出如下结论：DDCap方法通常首先生成图像中的主体对象和对应的冠词，接着生成表示主体对象间相对关系的介词以及描述这些对象的形容词，最后生成其他名词、动词等使得句子语法正确。这一过程与人类自然思维顺序有一定相似性，展现了从点到线再到面的生成逻辑。
-
-此外，图\ref{fig:ddcap-qualification}展示了DDCap方法和自回归方法在MSCOCO测试集部分样例上的图像描述生成结果，其中“AR”表示自回归方法生成的图像描述，而“GT”表示数据集中的参考描述。图中灰色块展示了部分生成结果的错误之处。相比于自回归方法，DDCap方法在识别图像中的主体对象方面表现更优。但由于DDCap方法依赖长度预测任务，且如图\ref{fig:ddcap-length}所示，长度预测误差存在较明显的分布倾向，也即预测序列长度比实际序列长度略长的概率更大。因此，当图像描述序列的长度预测结果更长，与实际长度有较大偏差时，DDCap方法生成的图像描述存在利用重复内容填充给定序列长度的现象。
-% 但是，我们的 DDCap 有时会生成一些重复的单词。这个问题可以通过两种方式处理：（i） 我们首先获取标题，然后找到这些重复的单词。这些重复的单词将被重新屏蔽和重新生成。（ii） 标题中重复的单词将被删除。然后我们得到这个标题的新长度，没有重复的单词。根据新的长度，我们重新生成整个标题。
 
 \section{总结}
 \label{sec:ddcap-summary}
